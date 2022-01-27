@@ -1,15 +1,14 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <FormControl></FormControl>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import FormControl from './components/FormControl.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    FormControl
   }
 }
 </script>
@@ -21,6 +20,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 20px;
+}
+
+textarea {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 </style>
