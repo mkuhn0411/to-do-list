@@ -46,12 +46,12 @@
                             type="checkbox" 
                             id="due-date" 
                             name="due-date" 
-                            v-model="duteDate" 
-                            @click="toggleDueDate"
+                            v-model="dueDate" 
+                            @change="toggleDueDate($event)"
                         />
                         <label for="due-date">Does this task have a due date?</label>
                     </div>
-                    <div v-if="dueDate" class="date-container">
+                    <div v-if="dateShown" class="date-container">
                         <Datepicker 
                             v-model="date"
                             class="startDate"
@@ -80,15 +80,15 @@ export default {
             taskDescription: '',
             descriptionShown: false,
             priority: 'normal',
-            dueDate: false,
             date: null,
+            dateShown: false,
             formShown: false,       
         }
     },
     computed: {
         handleStatus() {
             return {active: this.formShown}
-        }
+        },
     },
     methods: {
         submitForm() {
@@ -100,17 +100,14 @@ export default {
                 date: this.date.toLocaleString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })
             }
 
-            console.dir(this.date)
-
             this.$emit('add-task', obj);
 
             this.taskName = '';
             this.priority = 'normal';
             this.taskDescription = '';
             this.descriptionShown = false;
-            this.date = null;
-            this.dueDate = false;
-            console.log(this.dueDate)
+            this.date = null,
+            this.dueDate = false
         },
         toggleForm() {
             this.formShown = !this.formShown;
@@ -118,9 +115,9 @@ export default {
         toggleDescription() {
             this.descriptionShown = !this.descriptionShown;
         },
-        toggleDueDate() {
-            this.dueDate = !this.dueDate;
+        toggleDueDate(e) {
             console.log(this.dueDate)
+            this.dateShown = e.target.checked;
         }
     }
 }
