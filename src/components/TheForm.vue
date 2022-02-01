@@ -107,7 +107,8 @@ export default {
             this.taskDescription = '';
             this.descriptionShown = false;
             this.date = null,
-            this.dueDate = false
+            this.dueDate = false;
+            this.dateShown = false;
         },
         toggleForm() {
             this.formShown = !this.formShown;
