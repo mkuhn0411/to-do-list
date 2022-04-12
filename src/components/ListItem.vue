@@ -13,7 +13,7 @@
                         :class="{incomplete: taskIncomplete}"
                         @click="toggleStatus"
                     ></div>
-                    <div class="trash clickable"></div>
+                    <div class="trash clickable" @click="deleteItem(name)"></div>
                 </div>
             </div>
             <div class="row list-item" v-if="description.length > 0">
@@ -59,11 +59,11 @@ export default {
     methods: {
         toggleStatus() {
             this.taskIncomplete = !this.taskIncomplete;
+        },
+        deleteItem(item) {
+            this.$store.dispatch('deleteTask', item);
         }
     },
-    mounted() {
-        console.log(this.date)
-    }
 
 }
 </script>

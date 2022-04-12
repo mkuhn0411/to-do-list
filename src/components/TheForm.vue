@@ -5,32 +5,40 @@
                 <p class="title">Add a to do list item</p>
                 <div 
                     class="title-icon clickable" 
-                    :class="{active: formShown}"
+                    :class="{active: $store.state.isFormExpanded}"
                     @click="toggleForm"
                 ></div>
             </div>
-            <form v-if="formShown" @submit.prevent="submitForm">     
+            <form v-if="$store.state.isFormExpanded" @submit.prevent="checkForm">     
                 <div class="inner-form">
                     <div class="form-control">
                         <label for="task-name">Task Name</label>
-                        <input id="task-name" name="task-name" v-model.trim="taskName">
+                        <input 
+                            id="task-name" 
+                            name="task-name" 
+                            v-model.trim="taskName"
+                            @input="checkError"
+                        >
+                        <p class="error" v-if="errors.task">Please fill out task</p>
                     </div>
                     <div class="form-control">
                         <div class="inner-row">
                             <label for="task-description">Task Description</label>
                             <div 
                                 class="description-icon clickable" 
-                                :class="{active: descriptionShown}"
+                                :class="{active: $store.state.isDescriptionExpanded}"
                                 @click="toggleDescription"
                             >&nbsp;</div>
                         </div>
                         <textarea 
-                            v-if="descriptionShown"
+                            v-if="$store.state.isDescriptionExpanded"
                             rows="4" 
                             id="task-description" 
                             name="task-description" 
                             v-model.trim="taskDescription"
+                            @input="checkError"
                         ></textarea>
+                        <p class="error" v-if="errors.description">Please fill out description</p>
                     </div>
                     <div class="form-control">
                         <label for="priority">Priority Level</label>
@@ -51,12 +59,13 @@
                         />
                         <label for="due-date">Does this task have a due date?</label>
                     </div>
-                    <div v-if="dateShown" class="date-container">
+                    <div v-if="$store.state.isDateExpanded" class="date-container">
                         <Datepicker 
                             v-model="date"
                             class="startDate"
                             :is24="false"
                         ></Datepicker>
+                        <p class="error" v-if="errors.date && date === null">Please pick a date</p>
                     </div>
                     <button class="submit">Submit</button>
                 </div>
@@ -67,10 +76,10 @@
 
 <script>
 import Datepicker from 'vue3-date-time-picker';
-import 'vue3-date-time-picker/dist/main.css'
+import 'vue3-date-time-picker/dist/main.css';
+// import { mapActions} from 'vuex';
 
 export default {
-    emits: ['add-task'],
     components: 
     { Datepicker },
 
@@ -78,11 +87,14 @@ export default {
         return {
             taskName: '',
             taskDescription: '',
-            descriptionShown: false,
             priority: 'normal',
             date: null,
-            dateShown: false,
-            formShown: false,       
+            errors: {
+                task: false,
+                description: false,
+                dueDate: false
+            }
+    
         }
     },
     computed: {
@@ -91,17 +103,53 @@ export default {
         },
     },
     methods: {
-        submitForm() {
-            const obj = {
-                item: this.taskName,
-                description: this.taskDescription,
-                priority: this.priority,
-                dueDate: this.dueDate,
-                date: this.date.toLocaleString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })
+        checkForm() {
+            if (this.taskName.length === 0) {
+                this.errors.task = true;
             }
 
-            this.$emit('add-task', obj);
+            if (this.$store.state.isDescriptionExpanded && this.taskDescription.length === 0) {
+                this.errors.description = true;
+            }
 
+            console.log(this.$store.state.isDateExpanded)
+            if (this.$store.state.isDateExpanded && this.date === null) {
+                this.errors.date = true;
+            }
+
+            if (!this.errors.task && !this.errors.description && !this.errors.date) {
+                this.submitForm();
+            }
+        },
+        checkError() {
+            if (this.errors.task && this.taskName.length > 0) {
+                this.errors.task = false;
+            }
+
+            if (this.errors.description) {
+                if (this.taskDescription.length > 0 || !this.$store.state.isDescriptionExpanded)
+                this.errors.description = false;
+            }
+
+            if (this.errors.date) {
+                if (this.date || !this.$store.state.isDateExpanded)
+                this.errors.date = false;
+            }
+
+        },
+        submitForm() {
+
+            let object = {
+                item: this.taskName,
+                description: this.taskDescription ? this.taskDescription : false,
+                priority: this.priority,
+                dueDate: this.date ? true : false,
+                date: this.date ? this.date.toLocaleString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' }) : false
+            }
+
+            console.log(object)
+            this.$store.dispatch('addTask', object);
+          
             this.taskName = '';
             this.priority = 'normal';
             this.taskDescription = '';
@@ -110,15 +158,16 @@ export default {
             this.dueDate = false;
             this.dateShown = false;
         },
+        // ...mapActions(['formExpanded']),
         toggleForm() {
-            this.formShown = !this.formShown;
+            this.$store.dispatch('formExpanded');
         },
         toggleDescription() {
-            this.descriptionShown = !this.descriptionShown;
+            this.$store.dispatch('descriptionExpanded');
+            this.checkError();
         },
-        toggleDueDate(e) {
-            console.log(this.dueDate)
-            this.dateShown = e.target.checked;
+        toggleDueDate() {
+            this.$store.dispatch('dateExpanded');
         }
     }
 }
@@ -263,6 +312,13 @@ button {
 .week .port {
     width: 20px;
     height: 20px;
+}
+
+.error {
+    display: block;
+    margin: 5px 0 0;
+    color: red;
+    font-size: 12px;
 }
 
 </style>

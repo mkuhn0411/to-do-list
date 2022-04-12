@@ -1,6 +1,6 @@
 <template>
     <TheForm @add-task="updateList"></TheForm>
-    <ListLayout v-if="tasks.length > 0" :taskList="tasks"></ListLayout>
+    <ListLayout v-if="$store.state.taskList.length > 0" :taskList="tasks"></ListLayout>
 </template>
 
 <script>
@@ -26,9 +26,6 @@ export default {
           this.tasks.unshift(obj);
       }
   },
-//   setup() {
-//     provide('taskList', tasks);
-//   }
 }
 </script>
 

@@ -3,7 +3,7 @@
         <div>
             <p class="list-title">Your do list:</p>
             <ListItem
-                v-for="tasks in taskList"
+                v-for="tasks in $store.state.taskList"
                 :key="tasks.item"
                 :name="tasks.item"
                 :priority="tasks.priority"
